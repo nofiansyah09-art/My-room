@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>My Room — Mélusine</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8cc80;
+    --deep: #0a0d1a;
+    --navy: #0f1629;
+    --panel: rgba(12, 17, 38, 0.82);
+    --text: #e8e0d0;
+    --muted: #8a8fa8;
+    --dragon: #4a8fa8;
+    --dragon-light: #7dc4db;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: var(--deep);
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+  }
+
+  /* ── BACKGROUND ── */
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 110%, #1a3a5c 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, #0d2440 0%, transparent 55%),
+      linear-gradient(180deg, #060a14 0%, #0a1628 40%, #0d1f3a 100%);
+  }
+
+  .stars {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--dur) ease-in-out infinite alternate;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: var(--op); transform: scale(1.2); }
+  }
+
+  .aurora {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse 120% 40% at 30% 60%, rgba(74,143,168,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 30% at 70% 40%, rgba(100,60,160,0.05) 0%, transparent 50%);
+    animation: auroraShift 12s ease-in-out infinite alternate;
+  }
+  @keyframes auroraShift {
+    0% { opacity: 0.6; transform: translateX(-2%) scaleY(1); }
+    100% { opacity: 1; transform: translateX(2%) scaleY(1.1); }
+  }
+
+  /* ── LAYOUT ── */
+  .screen {
+    position: relative;
+    z-index: 10;
+    height: 100dvh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 env(safe-area-inset-bottom, 16px);
+  }
+
+  /* ── TOP STATUS BAR ── */
+  .statusbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 0;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-family: 'Lato', sans-serif;
+  }
+  .statusbar .time-display {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 300;
+    letter-spacing: 0.12em;
+  }
+
+  /* ── CHALDEA HEADER ── */
+  .chaldea-header {
+    margin-top: 8px;
+    text-align: center;
+    letter-spacing: 0.25em;
+    font-size: 9px;
+    color: var(--muted);
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 1s 0.3s forwards;
+  }
+
+  /* ── SERVANT DISPLAY ── */
+  .servant-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    max-height: 42vh;
+    margin-top: 4px;
+  }
+
+  .servant-silhouette {
+    width: 180px;
+    height: 220px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 1.2s 0.5s forwards;
+  }
+
+  /* Dragon wing decorative shapes */
+  .wing-left, .wing-right {
+    position: absolute;
+    bottom: 30px;
+    width: 90px;
+    height: 130px;
+    border-radius: 50% 10% 10% 50% / 60% 10% 10% 40%;
+    background: linear-gradient(135deg, rgba(74,143,168,0.15), rgba(74,143,168,0.03));
+    border: 1px solid rgba(74,143,168,0.2);
+    animation: wingPulse 4s ease-in-out infinite alternate;
+  }
+  .wing-left {
+    left: -10px;
+    transform: scaleX(-1) rotate(-15deg);
+    transform-origin: right bottom;
+  }
+  .wing-right {
+    right: -10px;
+    transform: rotate(15deg);
+    transform-origin: left bottom;
+  }
+  @keyframes wingPulse {
+    0% { opacity: 0.5; transform: rotate(15deg) scaleY(1); }
+    100% { opacity: 0.9; transform: rotate(18deg) scaleY(1.04); }
+  }
+  .wing-left { animation-name: wingPulseL; }
+  @keyframes wingPulseL {
+    0% { opacity: 0.5; transform: scaleX(-1) rotate(-15deg) scaleY(1); }
+    100% { opacity: 0.9; transform: scaleX(-1) rotate(-18deg) scaleY(1.04); }
+  }
+
+  /* Servant placeholder / image slot */
+  .servant-img {
+    width: 140px;
+    height: 200px;
+    object-fit: contain;
+    object-position: top;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 0 24px rgba(74,143,168,0.4));
+  }
+
+  /* Fallback dragon silhouette drawn in CSS */
+  .servant-placeholder {
+    width: 140px;
+    height: 200px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    filter: drop-shadow(0 0 20px rgba(74,143,168,0.5));
+  }
+
+  .figure-body {
+    width: 48px;
+    height: 110px;
+    background: linear-gradient(180deg, rgba(125,196,219,0.25) 0%, rgba(74,143,168,0.15) 100%);
+    border: 1px solid rgba(125,196,219,0.35);
+    border-radius: 24px 24px 8px 8px;
+    position: relative;
+  }
+  .figure-head {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(125,196,219,0.2);
+    border: 1px solid rgba(125,196,219,0.4);
+    margin-bottom: -6px;
+    position: relative;
+    z-index: 1;
+  }
+  /* hair */
+  .figure-head::after {
+    content: '';
+    position: absolute;
+    top: -8px; left: -6px;
+    width: 44px; height: 28px;
+    border-radius: 50% 50% 0 0;
+    background: rgba(74,143,168,0.3);
+    border: 1px solid rgba(125,196,219,0.25);
+  }
+  .figure-glow {
+    position: absolute;
+    bottom: -10px;
+    width: 80px;
+    height: 20px;
+    background: radial-gradient(ellipse, rgba(74,143,168,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .servant-name {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--gold-light);
+    text-shadow: 0 0 30px rgba(201,168,76,0.5);
+    margin-top: 10px;
+    opacity: 0;
+    animation: fadeUp 1s 0.8s forwards;
+  }
+  .servant-class {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--dragon-light);
+    text-transform: uppercase;
+    margin-top: 3px;
+    opacity: 0;
+    animation: fadeUp 1s 1s forwards;
+  }
+
+  /* bond indicator */
+  .bond-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    opacity: 0;
+    animation: fadeUp 1s 1.1s forwards;
+  }
+  .bond-pip {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(201,168,76,0.7);
+  }
+  .bond-pip.empty {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    box-shadow: none;
+  }
+  .bond-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* divider */
+  .divider {
+    width: 80%;
+    max-width: 320px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+    margin: 10px auto;
+    opacity: 0;
+    animation: fadeIn 1s 1.2s forwards;
+  }
+
+  /* ── VOICE LINES PANEL ── */
+  .panel {
+    width: 100%;
+    max-width: 420px;
+    flex-shrink: 0;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 44vh;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 1s 1.3s forwards;
+  }
+  .panel::-webkit-scrollbar { display: none; }
+
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-align: center;
+    padding: 4px 0 2px;
+    text-transform: uppercase;
+  }
+
+  .voice-card {
+    background: var(--panel);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 10px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .voice-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(74,143,168,0.04) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .voice-card:hover::before,
+  .voice-card.playing::before { opacity: 1; }
+  .voice-card:hover {
+    border-color: rgba(201,168,76,0.4);
+    background: rgba(15,22,42,0.9);
+    transform: translateY(-1px);
+  }
+  .voice-card.playing {
+    border-color: var(--dragon-light);
+    background: rgba(12,28,48,0.92);
+  }
+  .voice-card:active { transform: scale(0.98); }
+
+  .play-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(125,196,219,0.4);
+    background: rgba(74,143,168,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .voice-card.playing .play-btn {
+    background: rgba(74,143,168,0.35);
+    border-color: var(--dragon-light);
+  }
+  .play-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 0 6px 10px;
+    border-color: transparent transparent transparent var(--dragon-light);
+    margin-left: 2px;
+    transition: opacity 0.2s;
+  }
+  .pause-icon {
+    display: none;
+    gap: 3px;
+  }
+  .pause-bar {
+    width: 3px; height: 12px;
+    background: var(--dragon-light);
+    border-radius: 2px;
+  }
+  .voice-card.playing .play-icon { display: none; }
+  .voice-card.playing .pause-icon { display: flex; }
+
+  /* waveform animation */
+  .waveform {
+    display: none;
+    align-items: center;
+    gap: 2px;
+    height: 16px;
+  }
+  .voice-card.playing .waveform { display: flex; }
+  .wave-bar {
+    width: 2px;
+    border-radius: 2px;
+    background: var(--dragon-light);
+    animation: wave var(--ws) ease-in-out infinite alternate;
+  }
+  @keyframes wave {
+    0% { height: 3px; opacity: 0.5; }
+    100% { height: var(--wh); opacity: 1; }
+  }
+
+  .voice-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .voice-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .voice-text {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .voice-filename {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-family: monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* file picker button */
+  .assign-btn {
+    flex-shrink: 0;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background: transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    font-family: 'Lato', sans-serif;
+  }
+  .assign-btn:hover { color: var(--gold); border-color: rgba(201,168,76,0.5); }
+  .assign-btn.loaded { color: var(--dragon-light); border-color: rgba(125,196,219,0.4); }
+  .hidden-input { display: none; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 20px 8px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    flex-shrink: 0;
+    opacity: 0;
+    animation: fadeIn 1s 1.5s forwards;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .nav-item.active { color: var(--gold); }
+  .nav-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* audio playing ripple */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(125,196,219,0.15);
+    animation: rippleOut 0.6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes rippleOut {
+    from { transform: scale(0); opacity: 1; }
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* notification dot when audio file missing */
+  .missing-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.4);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="stars" id="stars"></div>
+<div class="aurora"></div>
+
+<div class="screen">
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span class="time-display" id="clock">00:00</span>
+    <span>CHALDEA</span>
+    <span>★ Bond 10</span>
+  </div>
+
+  <div class="chaldea-header">My Room — Singularity Records</div>
+
+  <!-- Servant visual -->
+  <div class="servant-area">
+    <div class="servant-silhouette">
+      <div class="wing-left"></div>
+      <div class="wing-right"></div>
+
+      <!--
+        TO USE YOUR OWN ART:
+        Replace the servant-placeholder div below with:
+        <img class="servant-img" src="YOUR_IMAGE_FILE.png" alt="Mélusine">
+      -->
+      <img class="servant-img" src="melusine.png" alt="Mélusine">
+    </div>
+
+    <div class="servant-name">Mélusine</div>
+    <div class="servant-class">Lancer · Fairy Knight</div>
+
+    <div class="bond-row">
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <div class="bond-pip"></div>
+      <span class="bond-label">Bond 10</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Voice Lines Panel -->
+  <div class="panel">
+    <div class="panel-title">Voice Lines — My Room</div>
+
+    <!--
+      ════════════════════════════════════════════════════
+      HOW TO ADD YOUR AUDIO FILES:
+
+      1. Download .mp3 or .ogg files from the FGO wiki
+         (Category: Mélusine Audio)
+
+      2. Put them in the same folder as this HTML file
+
+      3. Replace the src="" in each <audio> tag below
+         with the actual filename, e.g.:
+         src="Melusine_MyRoom1.mp3"
+
+      The data-label and the <p> text are the EN translations.
+      ════════════════════════════════════════════════════
+    -->
+
+    <div class="voice-card" data-index="0" onclick="toggleVoice(this)">
+      <div class="play-btn">
+        <div class="play-icon"></div>
+        <div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>
+      </div>
+      <div class="voice-info">
+        <div class="voice-label">My Room 1</div>
+        <p class="voice-text">"So you've come to see me. Good. I was getting bored just sitting here."</p>
+      </div>
+      <button class="assign-btn" onclick="pickFile(event, this)">+ Audio</button>
+      <input class="hidden-input" type="file" accept="audio/*">
+      <audio src="Melusine_MyRoom1.mp3" preload="none"></audio>
+    </div>
+
+    <div class="voice-card" data-index="1" onclick="toggleVoice(this)">
+      <div class="play-btn">
+        <div class="play-icon"></div>
+        <div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>
+      </div>
+      <div class="voice-info">
+        <div class="voice-label">My Room 2</div>
+        <p class="voice-text">"What do you want? I'm not in the mood to be studied like some sort of specimen."</p>
+      </div>
+      <button class="assign-btn" onclick="pickFile(event, this)">+ Audio</button>
+      <input class="hidden-input" type="file" accept="audio/*">
+      <audio src="Melusine_MyRoom2.mp3" preload="none"></audio>
+    </div>
+
+    <div class="voice-card" data-index="2" onclick="toggleVoice(this)">
+      <div class="play-btn">
+        <div class="play-icon"></div>
+        <div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>
+      </div>
+      <div class="voice-info">
+        <div class="voice-label">My Room 3</div>
+        <p class="voice-text">"The fairies of Avalon are nothing like what humans imagine. We are far more... complicated."</p>
+      </div>
+      <button class="assign-btn" onclick="pickFile(event, this)">+ Audio</button>
+      <input class="hidden-input" type="file" accept="audio/*">
+      <audio src="Melusine_MyRoom3.mp3" preload="none"></audio>
+    </div>
+
+    <div class="voice-card" data-index="3" onclick="toggleVoice(this)">
+      <div class="play-btn">
+        <div class="play-icon"></div>
+        <div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>
+      </div>
+      <div class="voice-info">
+        <div class="voice-label">Bond CE</div>
+        <p class="voice-text">"You remind me of someone. Someone who chose to walk alongside a monster without flinching."</p>
+      </div>
+      <button class="assign-btn" onclick="pickFile(event, this)">+ Audio</button>
+      <input class="hidden-input" type="file" accept="audio/*">
+      <audio src="Melusine_Bond.mp3" preload="none"></audio>
+    </div>
+
+    <div class="voice-card" data-index="4" onclick="toggleVoice(this)">
+      <div class="play-btn">
+        <div class="play-icon"></div>
+        <div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>
+      </div>
+      <div class="voice-info">
+        <div class="voice-label">Login</div>
+        <p class="voice-text">"You're here. Then I suppose something worthwhile might happen today."</p>
+      </div>
+      <button class="assign-btn" onclick="pickFile(event, this)">+ Audio</button>
+      <input class="hidden-input" type="file" accept="audio/*">
+      <audio src="Melusine_Login.mp3" preload="none"></audio>
+    </div>
+
+    <div class="voice-card" data-index="5" onclick="toggleVoice(this)">
+      <div class="play-btn">
+        <div class="play-icon"></div>
+        <div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>
+      </div>
+      <div class="voice-info">
+        <div class="voice-label">Goodbye</div>
+        <p class="voice-text">"Leaving already? ...Fine. I wasn't going to say anything interesting anyway."</p>
+      </div>
+      <button class="assign-btn" onclick="pickFile(event, this)">+ Audio</button>
+      <input class="hidden-input" type="file" accept="audio/*">
+      <audio src="Melusine_Goodbye.mp3" preload="none"></audio>
+    </div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-dot"></div>Room</div>
+    <div class="nav-item"><div class="nav-dot"></div>Status</div>
+    <div class="nav-item"><div class="nav-dot"></div>Skills</div>
+    <div class="nav-item"><div class="nav-dot"></div>Profile</div>
+  </div>
+
+</div>
+
+<script>
+  // ── Clock ──
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // ── Stars ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    const op = (Math.random() * 0.5 + 0.2).toFixed(2);
+    const dur = (Math.random() * 4 + 2).toFixed(1) + 's';
+    const delay = (Math.random() * 6).toFixed(1) + 's';
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%; top:${Math.random()*70}%;
+      --dur:${dur}; --op:${op};
+      animation-delay:${delay};
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // ── Waveform bars ──
+  document.querySelectorAll('.play-btn').forEach(btn => {
+    const wf = document.createElement('div');
+    wf.className = 'waveform';
+    const heights = [6,10,14,8,12,10,6,14,8,10];
+    const speeds = [0.4,0.6,0.35,0.55,0.45,0.5,0.38,0.62,0.42,0.48];
+    heights.forEach((h, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      bar.style.cssText = `--wh:${h}px; --ws:${speeds[i]}s; animation-delay:${i*0.05}s;`;
+      wf.appendChild(bar);
+    });
+    btn.appendChild(wf);
+  });
+
+  // ── File picker ──
+  function pickFile(e, btn) {
+    e.stopPropagation();
+    const card = btn.closest('.voice-card');
+    const input = card.querySelector('input[type="file"]');
+    input.onchange = () => {
+      const file = input.files[0];
+      if (!file) return;
+      const audio = card.querySelector('audio');
+      const url = URL.createObjectURL(file);
+      audio.src = url;
+      btn.textContent = '✓ ' + file.name.slice(0, 14) + (file.name.length > 14 ? '…' : '');
+      btn.classList.add('loaded');
+      showToast('Loaded: ' + file.name);
+    };
+    input.click();
+  }
+
+  // ── Audio toggle ──
+  let currentCard = null;
+  let currentAudio = null;
+
+  function toggleVoice(card) {
+    const audio = card.querySelector('audio');
+    if (!audio.src || audio.src === window.location.href) {
+      showToast('Tap "+ Audio" to assign a file first');
+      return;
+    }
+
+    // ripple effect
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple';
+    ripple.style.cssText = `width:40px;height:40px;left:10px;top:${card.offsetHeight/2 - 20}px;`;
+    card.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 700);
+
+    if (currentCard && currentCard !== card) {
+      currentCard.classList.remove('playing');
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    if (card.classList.contains('playing')) {
+      card.classList.remove('playing');
+      audio.pause();
+      currentCard = null;
+      currentAudio = null;
+    } else {
+      card.classList.add('playing');
+      audio.play().catch(() => showToast('Could not play audio'));
+      currentCard = card;
+      currentAudio = audio;
+      audio.onended = () => {
+        card.classList.remove('playing');
+        currentCard = null;
+        currentAudio = null;
+      };
+    }
+  }
+
+  // ── Toast ──
+  function showToast(msg) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    t.style.cssText = `
+      position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+      background:rgba(10,13,26,0.92); border:1px solid rgba(201,168,76,0.3);
+      color:#c9a84c; font-size:11px; letter-spacing:0.12em;
+      padding:8px 18px; border-radius:20px; z-index:999;
+      backdrop-filter:blur(12px); white-space:nowrap;
+      animation: toastIn 0.3s ease forwards;
+    `;
+    document.head.insertAdjacentHTML('beforeend',
+      `<style>@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>`
+    );
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+  }
+</script>
+</body>
+</html>
